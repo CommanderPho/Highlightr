@@ -8,7 +8,6 @@
 
 import Foundation
 import JavaScriptCore
-import Gzip
 
 #if os(OSX)
 import AppKit
@@ -54,17 +53,11 @@ open class Highlightr
         let jsContext = JSContext()!
         let window = JSValue(newObjectIn: jsContext)
         jsContext.setObject(window, forKeyedSubscript: "window" as NSString)
+    
+        let highlightMinJs = Bundle.module.path(forResource: "highlight.min", ofType: ".js")!
+        let highlightMinJsUrl = URL(fileURLWithPath: highlightMinJs)
         
-        //        let data = Resources.defaultMinCssData
-        ////        let unzipped : Data
-        ////        do {
-        ////            unzipped = try data.gunzipped()
-        ////        }
-        ////        catch {
-        ////            return nil
-        ////        }
-        
-        guard let hgJs = String(data: Resources.defaultMinCssData, encoding: .utf8) else {
+        guard let hgJs = try? String(contentsOf: highlightMinJsUrl) else {
             return nil
         }
         
@@ -96,7 +89,7 @@ open class Highlightr
     @discardableResult
     open func setTheme(to name: String) -> Bool
     {
-        guard let defTheme = Bundle.path(forResource: name+".min", ofType: "css") else {
+        guard let defTheme = Bundle.module.path(forResource: name+".min", ofType: "css") else {
             return false
         }
         

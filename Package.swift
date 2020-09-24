@@ -14,13 +14,10 @@ let package = Package(
     .library(name: "Highlightr", targets: [ "Highlightr" ]),
   ],
   
-  dependencies: [
-    .package(url: "https://github.com/1024jp/GzipSwift.git",
-             from: "5.1.1")
-  ],
+  dependencies: [],
   
   targets: [
-    .target(name: "Highlightr", dependencies: [ "Gzip" ]),
+    .target(name: "Highlightr", dependencies: [], resources: [.process("Assets")]),
     .testTarget(name: "HighlightrTests", dependencies: ["Highlightr"])
   ]
 )
