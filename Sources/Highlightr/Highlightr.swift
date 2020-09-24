@@ -8,13 +8,12 @@
 
 import Foundation
 import JavaScriptCore
-import HighlightJS
 import Gzip
 
 #if os(OSX)
-    import AppKit
+import AppKit
 #else
-    import UIKit
+import UIKit
 #endif
 
 /// Utility class for generating a highlighted NSAttributedString from a String.
@@ -31,12 +30,12 @@ open class Highlightr
     
     /// This block will be called every time the theme changes.
     open var themeChanged : ((Theme) -> Void)?
-
+    
     /// Defaults to `false` - when `true`, forces highlighting to finish even if illegal syntax is detected.
     open var ignoreIllegals = false
-
+    
     private let hljs: JSValue
-
+    
     private let htmlStart = "<"
     private let spanStart = "span class=\""
     private let spanStartClose = "\">"
@@ -45,9 +44,9 @@ open class Highlightr
     
     /**
      Default init method.
-
+     
      - parameter highlightPath: The path to `highlight.min.js`. Defaults to `Highlightr.framework/highlight.min.js`
-
+     
      - returns: Highlightr instance.
      */
     public init?(highlightPath: String? = nil)
@@ -55,17 +54,17 @@ open class Highlightr
         let jsContext = JSContext()!
         let window = JSValue(newObjectIn: jsContext)
         jsContext.setObject(window, forKeyedSubscript: "window" as NSString)
-      
-        let data = HighlightJS.data_highlight_min_js
-        let unzipped : Data
-        do {
-            unzipped = try data.gunzipped()
-        }
-        catch {
-            return nil
-        }
-      
-        guard let hgJs = String(data: unzipped, encoding: .utf8) else {
+        
+        //        let data = Resources.defaultMinCssData
+        ////        let unzipped : Data
+        ////        do {
+        ////            unzipped = try data.gunzipped()
+        ////        }
+        ////        catch {
+        ////            return nil
+        ////        }
+        
+        guard let hgJs = String(data: Resources.defaultMinCssData, encoding: .utf8) else {
             return nil
         }
         
@@ -97,19 +96,12 @@ open class Highlightr
     @discardableResult
     open func setTheme(to name: String) -> Bool
     {
-        guard let data =
-          HighlightJS.resourceNamed("styles/\(name).min.css") else
-        {
-            return false
-        }
-        guard let unzipped = try? data.gunzipped() else { return false }
-        
-        guard let themeString = String(data: unzipped, encoding: .utf8) else
-        {
+        guard let defTheme = Bundle.path(forResource: name+".min", ofType: "css") else {
             return false
         }
         
-        theme = Theme(themeString: themeString)
+        let themeString = try! String.init(contentsOfFile: defTheme)
+        theme =  Theme(themeString: themeString)
         
         return true
     }
@@ -134,7 +126,7 @@ open class Highlightr
             // language auto detection
             ret = hljs.invokeMethod("highlightAuto", withArguments: [code])
         }
-
+        
         let res = ret.objectForKeyedSubscript("value")
         guard var string = res!.toString() else
         {
@@ -149,9 +141,9 @@ open class Highlightr
         {
             string = "<style>"+theme.lightTheme+"</style><pre><code class=\"hljs\">"+string+"</code></pre>"
             let opt: [NSAttributedString.DocumentReadingOptionKey : Any] = [
-             .documentType: NSAttributedString.DocumentType.html,
-             .characterEncoding: String.Encoding.utf8.rawValue
-             ]
+                .documentType: NSAttributedString.DocumentType.html,
+                .characterEncoding: String.Encoding.utf8.rawValue
+            ]
             
             let data = string.data(using: String.Encoding.utf8)!
             safeMainSync
@@ -252,8 +244,8 @@ open class Highlightr
         }
         
         let results = htmlEscape.matches(in: resultString.string,
-                                               options: [.reportCompletion],
-                                               range: NSMakeRange(0, resultString.length))
+                                         options: [.reportCompletion],
+                                         range: NSMakeRange(0, resultString.length))
         var locOffset = 0
         for result in results
         {
@@ -265,9 +257,9 @@ open class Highlightr
                 locOffset += result.range.length-1;
             }
             
-
+            
         }
-
+        
         return resultString
     }
     
