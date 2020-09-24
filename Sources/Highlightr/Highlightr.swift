@@ -155,7 +155,10 @@ open class Highlightr
      */
     open func availableThemes() -> [String]
     {
-        return [ "default" ]
+        return [ "default" ,
+                 "atom-one-light",
+                 "atom-one-dark",
+                 "atom-one-dark-reasonable"]
     }
     
     /**
